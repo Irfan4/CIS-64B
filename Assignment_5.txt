@@ -1,0 +1,129 @@
+
+Name: Irfan Ahmad
+
+Class: CIS 64B
+Question 1
+
+a. Create a query that displays the employees names and indicates the amounts of their salaries through asterisks. Each asterisk signifies hundred dollars. Sort the data in descending order of salary. Label the column EMPLOYEE_AND_THEIR_SALARIES.
+
+SQL> select concat(ename, rpad (' ', sal/100 + 1, '*')) as "EMPLOYEE_AND_THEIR_SALARIES"
+  2  from emp
+  3  order by sal desc;
+
+EMPLOYEE_AND_THEIR_SALARIES
+--------------------------------------------------------------------------------
+KING       **************************************************
+SCOTT      ******************************
+FORD       ******************************
+JONES      *****************************
+BLAKE      ****************************
+CLARK      ************************
+ALLEN      ****************
+TURNER     ***************
+MILLER     *************
+WARD       ************
+MARTIN     ************
+
+EMPLOYEE_AND_THEIR_SALARIES
+--------------------------------------------------------------------------------
+ADAMS      ***********
+JAMES      *********
+SMITH      ********
+
+14 rows selected.
+
+
+
+b. Display the employees name, username, hire date, salary and salary review date, which is the first Monday after six months of service. Label the column REVIEW. Format the dates to appear in the format mm/dd/yy. Salary should be rounded. Username is first two letters of the name 
+in the lower case.
+
+SQL> select ename as "Name", lower(substr(ename, 1, 2)) as "Username",
+  2  to_char (hiredate, 'MM/DD/YY') as "Hiredate", round(sal, 0) as "Salary",
+  3  to_char (next_day(add_months(hiredate, 6), 'MONDAY'), 'MM/DD/YY') as "Review"
+  4  from emp;
+
+Name       Username Hiredate     Salary Review
+---------- -------- -------- ---------- --------
+KING       ki       11/17/81       5000 05/24/82
+BLAKE      bl       05/01/81       2850 11/02/81
+CLARK      cl       06/09/81       2450 12/14/81
+JONES      jo       04/02/81       2975 10/05/81
+MARTIN     ma       09/28/81       1250 03/29/82
+ALLEN      al       02/20/81       1600 08/24/81
+TURNER     tu       09/08/81       1500 03/15/82
+JAMES      ja       12/03/81        950 06/07/82
+WARD       wa       02/22/81       1250 08/24/81
+FORD       fo       12/03/81       3000 06/07/82
+SMITH      sm       12/17/80        800 06/22/81
+
+Name       Username Hiredate     Salary Review
+---------- -------- -------- ---------- --------
+SCOTT      sc       12/09/82       3000 06/13/83
+ADAMS      ad       01/12/83       1100 07/18/83
+MILLER     mi       01/23/82       1300 07/26/82
+
+14 rows selected.
+
+
+c. Use subquery to display all employees, in department location 'BOSTON' with a salary of greater than $1000.
+
+
+SQL> select e.ename
+  2  from emp e, dept d
+  3  where e.deptno in ( select deptno
+  4                      from dept
+  5                      where loc = 'BOSTON')
+  6  and e.sal > 1000 and
+  7  e.deptno = d.deptno;
+
+no rows selected
+
+Question 2
+
+a. Write a query to display the employee name, job, and hire date for all employees who started between 01/01/81 to 12/31/81. Concatenate the name and job together, separated by a space and comma, and label the column Employees.
+
+SQL> select trim (ename) || ' ,' || job as "Employees", hiredate as "Hiredate"
+  2  from emp
+  3  where hiredate between '01-JAN-81' and '31-DEC-81';
+
+Employees             Hiredate
+--------------------- ---------
+KING ,PRESIDENT       17-NOV-81
+BLAKE ,MANAGER        01-MAY-81
+CLARK ,MANAGER        09-JUN-81
+JONES ,MANAGER        02-APR-81
+MARTIN ,SALESMAN      28-SEP-81
+ALLEN ,SALESMAN       20-FEB-81
+TURNER ,SALESMAN      08-SEP-81
+JAMES ,CLERK          03-DEC-81
+WARD ,SALESMAN        22-FEB-81
+FORD ,ANALYST         03-DEC-81
+
+10 rows selected.
+
+b. Explain the usage of correlated subqueries, inline views with an example.
+
+Correlated subqueries are used in accordance to every iteration done by the original query.  They are typically put within the 'WHERE' statement, and usually whenever a value needs to be compared to another value that has not been calculated yet.
+Thus, the subquery generates the value and when it is complete it is compared within the 'WHERE' statement.  Every time the original query is run, the subquery is called upon according to whichever operator that was selected for the 'WHERE' statement.
+
+Example:
+
+select empno
+from emp
+where sal > (select avg(sal)
+		from emp);
+
+In the above example, the correlated subquery is calculated the average of all salaries, and the original query compares that subquery to the employees who have a salary higher than the average.
+
+
+Inline views are similar to correlated subqueries, where instead the subquery is done under the 'FROM' statement.  Inline views are very helpful in simplfying queries, as it removes the need for joins.  Normally, a join would be put in place for data to be retrieved
+from multiple related tables.  With inline views, the table that data is taken from can be customized and pre sorted according to which values are needed.
+
+Example:
+
+select ename
+from (select mgr)
+	from emp)
+where mgr = 7566 or 7588;
+
+The above statement is searching through a list of managaers and then referring to the original query to match employee names.
